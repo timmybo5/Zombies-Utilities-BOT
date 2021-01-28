@@ -184,4 +184,4 @@ async def on_command_error(ctx, error):
 keep_alive()
 
 #Start bot
-bot.run(os.getenv("TOKEN"))
+bot.run(os.getenv("DISCORD_TOKEN"))
