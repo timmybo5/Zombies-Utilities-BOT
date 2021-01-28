@@ -1,0 +1,6 @@
+run="python main.py"
+language="python3"
+
+[packager]
+ignoredPaths=[".git"]
+ignoredPackages=["pydactyl"]
