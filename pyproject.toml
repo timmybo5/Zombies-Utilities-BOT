@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "zombies-utilities-bot"
 version = "0.1.0"
-description = ""
+description = "A python discord bot that offers useful utility commands"
 authors = ["zombie.extinguisher@hotmail.com"]
 
 [tool.poetry.dependencies]
