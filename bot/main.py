@@ -95,7 +95,7 @@ async def jail(ctx, target: discord.Member, time_str):
     time_now = datetime.datetime.now()
     time_unjail = time_now + datetime.timedelta(minutes = jail_length)
    
-    #Unfortunately db doesn't support 2d dicts (db["unjail"][str(target.id)])
+    #Unfortunately replit db doesn't support 2d dicts (db["unjail"][str(target.id)])
     db["unjailtime_"+str(ctx.guild.id)+"_"+str(target.id)] = time_unjail.timestamp()
 
     #Notification
