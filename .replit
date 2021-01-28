@@ -1,4 +1,4 @@
-run="python main.py"
+run="python bot/main.py"
 language="python3"
 
 [packager]
