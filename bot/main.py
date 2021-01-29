@@ -13,6 +13,7 @@ import pterodactyl
 import datetime
 import asyncio
 from discord.ext import commands, tasks
+from discord import Colour
 from replit import db
 from keep_alive import keep_alive
  
@@ -60,7 +61,8 @@ async def think():
         #Send msg in all general chats
         for channel in channels:
           if channel.name.lower() == "general":
-            await channel.send("{0.mention} has been released from prison!".format(member))
+            msg = "{0.mention} has been released from prison!".format(member)
+            await utils.send_success_msg(channel, msg)
 
 
 #Jail
@@ -69,7 +71,8 @@ async def jail(ctx, target: discord.Member, time_str):
 
     #Staff check
     if not utils.is_staff(ctx, ctx.message.author):
-      await ctx.send("{0.mention} the jail command is staff only!".format(ctx.message.author))
+      msg = "{0.mention} the jail command is staff only!".format(ctx.message.author)
+      await utils.send_failed_msg(ctx.channel, msg)
       return
 
     #Permission check
@@ -85,7 +88,8 @@ async def jail(ctx, target: discord.Member, time_str):
     jail_length = utils.get_minutes_from_time_str(time_str)
 
     if not jail_length or jail_length < 1:
-      await ctx.send("{0.mention} invalid jail time!".format(ctx.message.author))
+      msg = "{0.mention} invalid jail time!".format(ctx.message.author)
+      await utils.send_failed_msg(ctx.channel, msg)
       return
 
     if jail_length > 10080:
@@ -101,11 +105,11 @@ async def jail(ctx, target: discord.Member, time_str):
     #Notification
     length = utils.format_time_str(time_str)
     msg = "{0.mention} jailed {1.mention} for {2}!".format(ctx.message.author, target, length)
-    await ctx.send(msg)
+    await utils.send_success_msg(ctx.channel, msg)
 
 @jail.error
 async def jail_error(ctx, error):
-  await ctx.send("!jail requires 2 arguments: @user and time")
+  await utils.send_failed_msg(ctx.channel, "!jail requires 2 arguments: @user and time")
   return
 
 #Unjail
@@ -114,13 +118,15 @@ async def unjail(ctx, target: discord.Member):
 
     #Staff check
     if not utils.is_staff(ctx, ctx.message.author):
-      await ctx.send("{0.mention} the unjail command is staff only!".format(ctx.message.author))
+      msg = "{0.mention} the unjail command is staff only!".format(ctx.message.author)
+      await utils.send_failed_msg(ctx.channel, msg)
       return
 
     #Jailed check
     jail_role = discord.utils.get(ctx.guild.roles, name="Jailed")
     if not jail_role in target.roles:
-      await ctx.send("{0.mention} {1.name} is not jailed!".format(ctx.message.author, target))
+      msg = "{0.mention} {1.name} is not jailed!".format(ctx.message.author, target)
+      await utils.send_failed_msg(ctx.channel, msg)
       return
 
     #Permission check
@@ -138,11 +144,11 @@ async def unjail(ctx, target: discord.Member):
       del db[key]
 
     msg = "{0.mention} unjailed {1.mention}!".format(ctx.message.author, target)
-    await ctx.send(msg)
+    await utils.send_success_msg(ctx.channel, msg)
 
 @unjail.error
 async def unjail_error(ctx, error):
-  await ctx.send("!unjail requires a @user argument")
+  await utils.send_failed_msg(ctx.channel, "!unjail requires an @user argument")
   return
 
 #Restart
@@ -151,28 +157,44 @@ async def restart(ctx, server_name: str):
 
   #Staff check
   if not utils.is_staff(ctx, ctx.message.author):
-    await ctx.send("{0.mention} the restart command is staff only!".format(ctx.message.author))
+    msg = "{0.mention} the restart command is staff only!".format(ctx.message.author)
+    await utils.send_failed_msg(ctx.channel, msg)
     return
 
   success, response = pterodactyl.restart_server(server_name)
+  msg = "{0.mention} {1}".format(ctx.message.author, response)
 
-  msg = await ctx.send("{0.mention} {1}".format(ctx.message.author, response))
-  if success:
-    await msg.edit(content=msg.content+"\n> 1. Starting server container")
+  if not success:
+      await utils.send_failed_msg(ctx.channel, msg)
+  else:
+    restart_embed = discord.Embed(description=msg, colour=Colour.orange())
+    channel_msg = await ctx.send(embed=restart_embed)
     await asyncio.sleep(1)
-    await msg.edit(content=msg.content+"\n> 2. Loading Steam API...OK.")
+    restart_embed.description = restart_embed.description+"\n\n> 1: Killing server."
+    await channel_msg.edit(embed=restart_embed)
     await asyncio.sleep(1)
-    await msg.edit(content=msg.content+"\n> 3. Connecting anonymously to Steam Public...Logged in OK.")
+    restart_embed.description = restart_embed.description+"\n> 2: Starting server container."
+    await channel_msg.edit(embed=restart_embed)
+    await asyncio.sleep(1)
+    restart_embed.description = restart_embed.description+"\n> 3: Loading Steam API...OK."
+    await channel_msg.edit(embed=restart_embed)
+    await asyncio.sleep(1)
+    restart_embed.description = restart_embed.description+"\n> 4: Connecting anonymously to Steam Public...Logged in OK."
+    await channel_msg.edit(embed=restart_embed)
     await asyncio.sleep(8)
-    await msg.edit(content=msg.content+"\n> 4. Adding addons to filesystem.")
+    restart_embed.description = restart_embed.description+"\n> 5: Adding addons to filesystem."
+    await channel_msg.edit(embed=restart_embed)
     await asyncio.sleep(6)
-    await msg.edit(content=msg.content+"\n> 5. Initializing files.")
-    await asyncio.sleep(14)
-    await msg.edit(content=msg.content+"\n> 6. Server restarted!")
+    restart_embed.description = restart_embed.description+"\n> 6: Initializing files."
+    await channel_msg.edit(embed=restart_embed)
+    await asyncio.sleep(13)
+    restart_embed.color = Colour.green()
+    restart_embed.description = restart_embed.description+"\n> 7: Server restarted!"
+    await channel_msg.edit(embed=restart_embed)
 
 @restart.error
 async def restart_error(ctx, error):
-  await ctx.send("!restart requires a server_name argument")
+  await utils.send_failed_msg(ctx.channel, "!restart requires a server_name argument")
   return
 
 #Generic error handling
