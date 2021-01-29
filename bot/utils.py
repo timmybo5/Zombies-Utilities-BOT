@@ -2,6 +2,9 @@
 Utils
 """
 import discord
+from discord import Colour
+
+embed_red = discord.Embed(title="Red", colour=0xFF0000)
 
 def is_staff(ctx, member: discord.Member):
   staff_role = discord.utils.get(ctx.guild.roles, name="Staff")
@@ -16,10 +19,12 @@ def can_target(originator: discord.Member, target: discord.Member):
 async def print_no_perm_str(ctx, target: discord.Member, cmd):
 
   if ctx.message.author == target:
-    await ctx.send("{0.mention} you cannot {1} yourself!".format(ctx.message.author, cmd))
+    msg = "{0.mention} you cannot {1} yourself!".format(ctx.message.author, cmd)
+    await send_failed_msg(ctx.channel, msg)
     return
 
-  await ctx.send("{0.mention} you have no permission to {2} {1.mention}!".format(ctx.message.author, target, cmd))
+  msg = "{0.mention} you have no permission to {2} {1.mention}!".format(ctx.message.author, target, cmd)
+  await send_failed_msg(ctx.channel, msg)
 
 def get_minutes_from_time_str(time_str):
 
@@ -65,3 +70,13 @@ def format_time_str(time_str):
     time_type+='s'
 
   return str(length)+" "+time_type
+
+async def send_embed_msg(channel: discord.abc.GuildChannel, msg: str, col: discord.Color):
+  embed_red = discord.Embed(description=msg, colour=col)
+  return await channel.send(embed=embed_red)
+
+async def send_failed_msg(channel: discord.abc.GuildChannel, msg: str):
+  return await send_embed_msg(channel, msg, Colour.red())
+
+async def send_success_msg(channel: discord.abc.GuildChannel, msg: str):
+  return await send_embed_msg(channel, msg, Colour.green())
