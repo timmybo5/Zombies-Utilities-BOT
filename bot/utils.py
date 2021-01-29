@@ -72,8 +72,8 @@ def format_time_str(time_str):
   return str(length)+" "+time_type
 
 async def send_embed_msg(channel: discord.abc.GuildChannel, msg: str, col: discord.Color):
-  embed_red = discord.Embed(description=msg, colour=col)
-  return await channel.send(embed=embed_red)
+  embed = discord.Embed(description=msg, colour=col)
+  return await channel.send(embed=embed)
 
 async def send_failed_msg(channel: discord.abc.GuildChannel, msg: str):
   return await send_embed_msg(channel, msg, Colour.red())
