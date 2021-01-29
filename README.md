@@ -8,8 +8,21 @@ A python discord bot that offers useful utility commands
 - **!restart** <server_name> (Reboots a pterodactyl hosted server)
   - !restart sandbox
   
- ## Env
- The bot requires a .env file (root dir) with the following constants
- - DISCORD_TOKEN
- - PTERODACTYL_URL
- - PTERODACTYL_TOKEN
+## Env
+The bot requires a .env file (root dir) with the following constants
+- DISCORD_TOKEN
+- PTERODACTYL_URL
+- PTERODACTYL_TOKEN
+
+## Env
+The bot requires a .env file (root dir) with the following constants
+- DISCORD_TOKEN
+- PTERODACTYL_URL
+- PTERODACTYL_TOKEN
+
+## Jail
+For jail to work, the discord guild needs the following:
+- Channels:
+  - general (Released from prison message)
+  - jail (Channel for the jailed members)
+- Jailed role
