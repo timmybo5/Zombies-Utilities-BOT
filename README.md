@@ -14,12 +14,6 @@ The bot requires a .env file (root dir) with the following constants
 - PTERODACTYL_URL
 - PTERODACTYL_TOKEN
 
-## Env
-The bot requires a .env file (root dir) with the following constants
-- DISCORD_TOKEN
-- PTERODACTYL_URL
-- PTERODACTYL_TOKEN
-
 ## Jail
 For jail to work, the discord guild needs the following:
 - Channels:
