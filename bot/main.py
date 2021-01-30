@@ -80,9 +80,10 @@ async def jail(ctx, target: discord.Member, time_str):
       await utils.print_no_perm_str(ctx, target, "jail")
       return
 
-    #Set jail role on target
+    #Set jail role on target if not jailed yet
     jail_role = discord.utils.get(ctx.guild.roles, name="Jailed")
-    await roles.set_roles(target, [jail_role])
+    if not jail_role in target.roles:
+      await roles.set_roles(target, [jail_role])
 
     #Unjail time
     jail_length = utils.get_minutes_from_time_str(time_str)
