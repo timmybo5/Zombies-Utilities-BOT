@@ -19,6 +19,7 @@ from keep_alive import keep_alive
  
 bot = commands.Bot(command_prefix='!')
 bot.remove_command("help")
+pterodactyl_maintenance = False
 
 @bot.event
 async def on_ready():
@@ -156,6 +157,11 @@ async def unjail_error(ctx, error):
 @bot.command()
 async def restart(ctx, server_name: str):
 
+  #Pterodactyl maintenance
+  if pterodactyl_maintenance:
+    await utils.send_failed_msg(ctx.channel, "The server is in maintenance!")
+    return
+
   #Staff check
   if not utils.is_staff(ctx, ctx.message.author):
     msg = "{0.mention} the restart command is staff only!".format(ctx.message.author)
@@ -195,7 +201,10 @@ async def restart(ctx, server_name: str):
 
 @restart.error
 async def restart_error(ctx, error):
-  await utils.send_failed_msg(ctx.channel, "!restart requires a server_name argument")
+  if isinstance(error, commands.MissingRequiredArgument):
+    await utils.send_failed_msg(ctx.channel, "!restart requires a server_name argument.")
+  else:
+    await utils.send_failed_msg(ctx.channel, "Connection to server failed!")
   return
 
 #Generic error handling
