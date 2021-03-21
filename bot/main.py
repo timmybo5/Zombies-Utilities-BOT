@@ -96,7 +96,7 @@ async def jail(ctx, target: discord.Member, time_str):
 
     if jail_length > 10080:
       jail_length = 10080
-      time_str = "7d"
+      time_str = "1w"
 
     time_now = datetime.datetime.now()
     time_unjail = time_now + datetime.timedelta(minutes = jail_length)
@@ -109,10 +109,10 @@ async def jail(ctx, target: discord.Member, time_str):
     msg = "{0.mention} jailed {1.mention} for {2}!".format(ctx.message.author, target, length)
     await utils.send_success_msg(ctx.channel, msg)
 
-@jail.error
-async def jail_error(ctx, error):
-  await utils.send_failed_msg(ctx.channel, "!jail requires 2 arguments: @user and time")
-  return
+#@jail.error
+#async def jail_error(ctx, error):
+  #await utils.send_failed_msg(ctx.channel, "!jail requires 2 arguments: @user and time")
+  #return
 
 #Unjail
 @bot.command()
@@ -208,9 +208,9 @@ async def restart_error(ctx, error):
   return
 
 #Generic error handling
-@bot.event
-async def on_command_error(ctx, error):
-  return
+#@bot.event
+#async def on_command_error(ctx, error):
+  #return
 
 #Keep alive
 keep_alive()
