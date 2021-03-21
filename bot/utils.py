@@ -36,6 +36,8 @@ def get_minutes_from_time_str(time_str):
     multiplicator = 60
   elif time_str[-1] == "d":
     multiplicator = 1440
+  elif time_str[-1] == "w":
+    multiplicator = 10080
 
   length = 0
 
@@ -58,6 +60,8 @@ def format_time_str(time_str):
     time_type = "hour"
   elif time_str[-1] == "d":
     time_type = "day"
+  elif time_str[-1] == "w":
+    time_type = "week"
 
   length = 0
 
