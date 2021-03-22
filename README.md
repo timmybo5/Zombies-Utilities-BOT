@@ -2,7 +2,7 @@
 A python discord bot that offers useful utility commands
 
 ## Commands
-- **!jail** <@player> <time [m,h,d]>
+- **!jail** <@player> <time [m,h,d,w]>
   - !jail @Zombie Extinguisher 3h
 - **!unjail** <@player>
 - **!restart** <server_name> (Reboots a pterodactyl hosted server)
