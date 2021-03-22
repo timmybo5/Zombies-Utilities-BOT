@@ -110,9 +110,9 @@ async def jail(ctx, target: discord.Member, time_str):
     await utils.send_success_msg(ctx.channel, msg)
 
 #@jail.error
-#async def jail_error(ctx, error):
-  #await utils.send_failed_msg(ctx.channel, "!jail requires 2 arguments: @user and time")
-  #return
+async def jail_error(ctx, error):
+  await utils.send_failed_msg(ctx.channel, "!jail requires 2 arguments: @user and time")
+  return
 
 #Unjail
 @bot.command()
@@ -208,9 +208,9 @@ async def restart_error(ctx, error):
   return
 
 #Generic error handling
-#@bot.event
-#async def on_command_error(ctx, error):
-  #return
+@bot.event
+async def on_command_error(ctx, error):
+  return
 
 #Keep alive
 keep_alive()
