@@ -16,10 +16,16 @@ from discord.ext import commands, tasks
 from discord import Colour
 from replit import db
 from keep_alive import keep_alive
- 
-bot = commands.Bot(command_prefix='!')
+
+intents = discord.Intents.default()
+intents.members = True
+intents.presences = True
+intents.messages = True
+
+bot = commands.Bot(command_prefix='!', intents=intents)
 bot.remove_command("help")
 pterodactyl_maintenance = False
+purge_file_path = "purged_raid_members.txt"
 
 @bot.event
 async def on_ready():
@@ -52,7 +58,7 @@ async def think():
           return
 
         #Restore roles
-        await roles.restore_roles_no_ctx(member, guild)
+        await roles.restore_roles(guild, member)
 
         #Remove unjail time
         del db[key]
@@ -81,10 +87,16 @@ async def jail(ctx, target: discord.Member, time_str):
       await utils.print_no_perm_str(ctx, target, "jail")
       return
 
+    #Booster check
+    #if utils.is_booster(ctx, target):
+      #msg = "{0.mention} boosters cannot be jailed!".format(ctx.message.author)
+      #await utils.send_failed_msg(ctx.channel, msg)
+      #return
+
     #Set jail role on target if not jailed yet
     jail_role = discord.utils.get(ctx.guild.roles, name="Jailed")
     if not jail_role in target.roles:
-      await roles.set_roles(target, [jail_role])
+      await roles.set_roles(ctx.guild, target, [jail_role])
 
     #Unjail time
     jail_length = utils.get_minutes_from_time_str(time_str)
@@ -109,7 +121,7 @@ async def jail(ctx, target: discord.Member, time_str):
     msg = "{0.mention} jailed {1.mention} for {2}!".format(ctx.message.author, target, length)
     await utils.send_success_msg(ctx.channel, msg)
 
-#@jail.error
+@jail.error
 async def jail_error(ctx, error):
   await utils.send_failed_msg(ctx.channel, "!jail requires 2 arguments: @user and time")
   return
@@ -137,7 +149,7 @@ async def unjail(ctx, target: discord.Member):
       return
 
     #Restore roles
-    await roles.restore_roles(ctx, target)
+    await roles.restore_roles(ctx.guild, target)
 
     #Remove unjail time
     key = "unjailtime_"+str(ctx.guild.id)+"_"+str(target.id)
@@ -205,6 +217,105 @@ async def restart_error(ctx, error):
     await utils.send_failed_msg(ctx.channel, "!restart requires a server_name argument.")
   else:
     await utils.send_failed_msg(ctx.channel, "Connection to server failed!")
+  return
+
+#Bot Purge
+@bot.command()
+async def purgeraid(ctx, date_str):
+
+    #Administrator check
+    if not utils.is_administrator(ctx.message.author):
+      msg = "{0.mention} the botpurge command is administrator only!".format(ctx.message.author)
+      await utils.send_failed_msg(ctx.channel, msg)
+      return
+
+    #Date validator [dd/mm/yyyy]
+    purge_start_date = False
+    try:
+      purge_start_date = datetime.datetime.strptime(date_str, "%d/%m/%Y")
+    except:
+      await utils.send_failed_msg(ctx.channel, "Given date does not match format dd/mm/yyyy!")
+      return
+
+    purge_end_date = purge_start_date + datetime.timedelta(days=1)
+
+    #Member date check
+    joined_members = []
+    raid_members = []
+    for member in ctx.guild.members:
+      if member.joined_at > purge_start_date and member.joined_at < purge_end_date:
+        joined_members.append(member)
+
+        member_roles  = roles.get_roles(member)
+        if (len(member_roles) == 1):
+          raid_members.append(member)
+
+    #Message top
+    purge_embed = discord.Embed(title="Purging raid members...", description="", colour=Colour.orange())
+    channel_msg = await ctx.send(embed=purge_embed)
+    await asyncio.sleep(1)
+    purge_embed.description = purge_embed.description+"\n\n> 1: Checking "+str(len(ctx.guild.members))+" members."
+    await channel_msg.edit(embed=purge_embed)
+    await asyncio.sleep(1)
+    purge_embed.description = purge_embed.description+"\n> 2: Found "+str(len(joined_members))+" members that joined on "+date_str+"!"
+    await channel_msg.edit(embed=purge_embed)
+    await asyncio.sleep(1)
+    purge_embed.description = purge_embed.description+"\n> 3: Detected "+str(len(raid_members))+" possibe raid members!"
+    await channel_msg.edit(embed=purge_embed)
+    await asyncio.sleep(1)
+    purge_embed.description = purge_embed.description+"\n\n Are you sure you want to purge "+str(len(raid_members))+" members? (y/n)"
+    await channel_msg.edit(embed=purge_embed)
+
+    #Wait for response
+    response_msg = await bot.wait_for("message", check=lambda message: message.author == ctx.message.author, timeout=30.0)
+
+    #Abort purge
+    if response_msg.content.strip().lower() != 'y':
+      purge_embed.color = Colour.red()
+      purge_embed.description = purge_embed.description+"\n Purge aborted!"
+      await channel_msg.edit(embed=purge_embed)
+      return
+
+    #Delete response
+    await response_msg.delete()
+
+    #Create empty purge file and wait for input
+    purge_file = open(purge_file_path, "w")
+    purge_file.close()
+    purge_file = open(purge_file_path, "a")
+
+    purge_embed.description = purge_embed.description+"\n\n **Purging**:"
+    await channel_msg.edit(embed=purge_embed)
+
+    #Purge raid members
+    purged_count = 1
+    for member in raid_members:
+
+      #Content length restrictions -> split into blocks of 50 names
+      if purged_count%50 == 0:
+        purge_embed.color = Colour.green()
+        await channel_msg.edit(embed=purge_embed)
+        purge_embed = discord.Embed(description="**Purging**:", colour=Colour.orange())
+        channel_msg = await ctx.send(embed=purge_embed)
+
+      purge_file.write(str(purged_count)+". "+member.name+" - "+str(member.id)+"\n")
+      purge_embed.description = purge_embed.description+"\n> "+str(purged_count)+". "+member.name
+      await channel_msg.edit(embed=purge_embed)
+      await member.kick(reason="Kicked due to suspected server raid activity!")
+      purged_count += 1
+    
+    #Close and upload file
+    purge_file.close()
+    purge_file = open(purge_file_path, "r")
+    await ctx.send(file=discord.File(purge_file))
+    purge_file.close()
+
+    msg = "{0.mention} purged {1} potential raid members that joined on {2}!".format(ctx.message.author, purged_count, date_str)
+    await utils.send_success_msg(ctx.channel, msg)
+  
+@purgeraid.error
+async def purgeraid_error(ctx, error):
+  await utils.send_failed_msg(ctx.channel, "!purgeraid requires a date [dd/mm/yyyy] argument")
   return
 
 #Generic error handling

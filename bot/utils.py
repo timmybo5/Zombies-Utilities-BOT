@@ -10,6 +10,17 @@ def is_staff(ctx, member: discord.Member):
   staff_role = discord.utils.get(ctx.guild.roles, name="Staff")
   return staff_role in member.roles
 
+def is_administrator(member: discord.Member):
+  return member.guild_permissions.administrator
+
+def is_booster(guild: discord.Guild, member: discord.Member):
+  
+  #Check if a booster role exists on the server
+  if guild.premium_subscriber_role == None:
+    return False
+  
+  return guild.premium_subscriber_role in member.roles
+
 def can_target(originator: discord.Member, target: discord.Member):
   originator_top_role = originator.top_role
   target_top_role = target.top_role

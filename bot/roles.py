@@ -3,10 +3,18 @@ Discord role helper class
 Ref: https://discordpy.readthedocs.io/en/v1.2.2/api.html#role
 """
 import discord
+import utils
 from replit import db
 from typing import List
 
-async def set_roles(member: discord.Member, roles: List[discord.Role]):
+async def remove_all_roles(guild: discord.Guild, member: discord.Member):
+  if utils.is_booster(guild, member):
+    await member.edit(roles=[guild.premium_subscriber_role])
+  else:
+    #Will error when trying to remove a booster role
+    await member.edit(roles=[])
+
+async def set_roles(guild: discord.Guild, member: discord.Member, roles: List[discord.Role]):
 
   #Get old roles and save
   old_roles = get_roles(member)
@@ -23,20 +31,20 @@ async def set_roles(member: discord.Member, roles: List[discord.Role]):
   db[key] = old_role_ids
 
   #Remove old roles
-  await member.edit(roles=[])
+  await remove_all_roles(guild, member)
 
   #Assign new role
   await member.add_roles(*roles)
 
 
-async def restore_roles(ctx, member: discord.Member):
-  roles = get_previous_roles(ctx, member)
-  await set_roles(member, roles)
+async def restore_roles(guild: discord.Guild, member: discord.Member):
+  roles = get_previous_roles(guild, member)
+  await set_roles(guild, member, roles)
 
 def get_roles(member: discord.Member):
   return member.roles
 
-def get_previous_roles(ctx, member: discord.Member):
+def get_previous_roles(guild: discord.Guild, member: discord.Member):
   key = "prev_roles_"+str(member.id)
   roles = []
 
@@ -45,31 +53,10 @@ def get_previous_roles(ctx, member: discord.Member):
 
     for role_id in role_ids:
 
-      # @everyone is not assignable (will throw an error)
-      if role_id == ctx.guild.default_role.id:
-        continue
-
-      roles.append(discord.utils.get(ctx.guild.roles, id=role_id))
-
-  return roles
-
-async def restore_roles_no_ctx(member: discord.Member, guild: discord.Guild):
-  key = "prev_roles_"+str(member.id)
-  roles = []
-
-  if key in db:
-    role_ids = db[key]
-
-    for role_id in role_ids:
-
-      # @everyone is not assignable (will throw an error)
-      if role_id == guild.default_role.id:
+      # @everyone & Booster roles are not assignable (will throw an error)
+      if (role_id == guild.default_role.id or role_id == guild.premium_subscriber_role.id):
         continue
 
       roles.append(discord.utils.get(guild.roles, id=role_id))
 
-  #Remove old roles
-  await member.edit(roles=[])
-
-  #Restore old roles
-  await member.add_roles(*roles)
+  return roles
