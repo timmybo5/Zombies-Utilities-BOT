@@ -304,6 +304,10 @@ async def purgeraid(ctx, date_str):
       await member.kick(reason="Kicked due to suspected server raid activity!")
       purged_count += 1
     
+    #Mark last embed as done
+    purge_embed.color = Colour.green()
+    await channel_msg.edit(embed=purge_embed)
+
     #Close and upload file
     purge_file.close()
     purge_file = open(purge_file_path, "r")
