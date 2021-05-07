@@ -86,19 +86,8 @@ async def jail(ctx, target: discord.Member, time_str):
     if not utils.can_target(ctx.message.author, target):
       await utils.print_no_perm_str(ctx, target, "jail")
       return
-
-    #Booster check
-    #if utils.is_booster(ctx, target):
-      #msg = "{0.mention} boosters cannot be jailed!".format(ctx.message.author)
-      #await utils.send_failed_msg(ctx.channel, msg)
-      #return
-
-    #Set jail role on target if not jailed yet
-    jail_role = discord.utils.get(ctx.guild.roles, name="Jailed")
-    if not jail_role in target.roles:
-      await roles.set_roles(ctx.guild, target, [jail_role])
-
-    #Unjail time
+  
+    #Unjail time check
     jail_length = utils.get_minutes_from_time_str(time_str)
 
     if not jail_length or jail_length < 1:
@@ -106,6 +95,12 @@ async def jail(ctx, target: discord.Member, time_str):
       await utils.send_failed_msg(ctx.channel, msg)
       return
 
+    #Set jail role on target if not jailed yet
+    jail_role = discord.utils.get(ctx.guild.roles, name="Jailed")
+    if not jail_role in target.roles:
+      await roles.set_roles(ctx.guild, target, [jail_role])
+
+    #Unjail time
     if jail_length > 10080:
       jail_length = 10080
       time_str = "1w"
