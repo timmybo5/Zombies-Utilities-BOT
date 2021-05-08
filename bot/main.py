@@ -309,7 +309,7 @@ async def purgeraid(ctx, date_str):
     await ctx.send(file=discord.File(purge_file))
     purge_file.close()
 
-    msg = "{0.mention} purged {1} potential raid members that joined on {2}!".format(ctx.message.author, purged_count, date_str)
+    msg = "{0.mention} purged {1} potential raid members that joined on {2}!".format(ctx.message.author, purged_count-1, date_str)
     await utils.send_success_msg(ctx.channel, msg)
   
 @purgeraid.error
