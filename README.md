@@ -8,7 +8,8 @@ A python discord bot that offers useful utility commands
 - **!restart** <server_name> (Reboots a pterodactyl hosted server)
   - !restart sandbox
 - **!purgeraid** <date dd/mm/yyyy> (Kicks all members that joined on that date without role)
-  
+- **!say** <message> (Talks as the bot)
+
 ## Env
 The bot requires a .env file (root dir) with the following constants
 - DISCORD_TOKEN
@@ -20,7 +21,15 @@ For jail to work, the discord guild needs the following:
 - Channels:
   - general (Released from prison message)
   - jail (Channel for the jailed members)
+
 - Jailed role
 
 ## Raid purge
 Although extremely useful (especially with the increase in discord raid bots) it can have false positives. This works best on servers that require users to pick a role in order to gain access or more privileges.
+
+## Invite Logger
+When a new member joins the bot will log what invite link they used from what user.
+
+For the invite logger to work, the discord guild needs the following:
+- Channels:  
+  - invite-logs (Channel for the invite logs)

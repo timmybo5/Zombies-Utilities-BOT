@@ -17,6 +17,8 @@ from discord import Colour
 from replit import db
 from keep_alive import keep_alive
 
+import DiscordUtils
+
 intents = discord.Intents.default()
 intents.members = True
 intents.presences = True
@@ -24,6 +26,7 @@ intents.messages = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 bot.remove_command("help")
+tracker = DiscordUtils.InviteTracker(bot)
 pterodactyl_maintenance = False
 purge_file_path = "purged_raid_members.txt"
 
@@ -316,6 +319,34 @@ async def purgeraid(ctx, date_str):
 async def purgeraid_error(ctx, error):
   await utils.send_failed_msg(ctx.channel, "!purgeraid requires a date [dd/mm/yyyy] argument")
   return
+
+#Say your message as the bot
+@bot.command()
+async def say(ctx, *, message):
+
+    #Administrator check
+    if not utils.is_administrator(ctx.message.author):
+      msg = "{0.mention} the say command is administrator only!".format(ctx.message.author)
+      await utils.send_failed_msg(ctx.channel, msg)
+      return
+
+    #Delete command message
+    await ctx.message.delete()
+
+    #Send message in channel
+    await ctx.channel.send(message)
+
+#Invite logger (https://github.com/toxicrecker/DiscordUtils/)
+@bot.event
+async def on_member_join(member):
+
+    #Get inviter
+    inviter = await tracker.fetch_inviter(member)
+
+    #Get logging channel
+    log_chan = discord.utils.get(member.guild.channels, name="invite-logs")
+    if log_chan:
+        await log_chan.send('**{0.name}**({0.mention}) was invited by **{1.name}**({1.mention}).'.format(member, inviter))
 
 #Generic error handling
 @bot.event
