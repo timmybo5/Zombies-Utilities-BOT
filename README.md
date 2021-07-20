@@ -33,3 +33,12 @@ When a new member joins the bot will log what invite link they used from what us
 For the invite logger to work, the discord guild needs the following:
 - Channels:  
   - invite-logs (Channel for the invite logs)
+
+The bot also offers an API POST call to retreive a custom one-time 5 minute use invite and logs the details of that invite to the logging channel so that everyone can be tracked.
+
+For the invite creation API you need:
+- POST:
+  - name ( invite requestee name )
+  - steamID ( invite requestee steam id )
+  - guildID ( the id of your guild )
+  - channelID ( the invite channel )
