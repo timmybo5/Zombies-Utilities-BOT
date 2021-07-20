@@ -5,19 +5,18 @@ Ref:
   - https://github.com/AnIdiotsGuide/discordjs-bot-guide/blob/master/understanding/roles.md
 """
 
-import discord
 import os
 import roles
 import utils
 import pterodactyl
 import datetime
 import asyncio
+import discord
+import inviting
 from discord.ext import commands, tasks
 from discord import Colour
 from replit import db
-from keep_alive import keep_alive
-
-import DiscordUtils
+from webserver import keep_alive
 
 intents = discord.Intents.default()
 intents.members = True
@@ -26,7 +25,8 @@ intents.messages = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 bot.remove_command("help")
-tracker = DiscordUtils.InviteTracker(bot)
+bot.load_extension("inviting")
+
 pterodactyl_maintenance = False
 purge_file_path = "purged_raid_members.txt"
 
@@ -34,6 +34,7 @@ purge_file_path = "purged_raid_members.txt"
 async def on_ready():
   print("Bot registered as {0.user}".format(bot))
   think.start()
+  await inviting.on_ready(bot)
 
 #Think: Automatic unjail
 @tasks.loop(seconds=30.0)
@@ -336,17 +337,24 @@ async def say(ctx, *, message):
     #Send message in channel
     await ctx.channel.send(message)
 
-#Invite logger (https://github.com/toxicrecker/DiscordUtils/)
+#Invite logger
 @bot.event
 async def on_member_join(member):
 
     #Get inviter
-    inviter = await tracker.fetch_inviter(member)
+    inviter, invite_code = await inviting.fetch_inviter(member)
 
     #Get logging channel
     log_chan = discord.utils.get(member.guild.channels, name="invite-logs")
     if log_chan:
-        await log_chan.send('**{0.name}**({0.mention}) was invited by **{1.name}**({1.mention}).'.format(member, inviter))
+      if (not inviter or not invite_code):
+        await log_chan.send('**{0.name}**({0.mention}) was invited by ERROR'.format(member))
+      else:
+        await log_chan.send('**{0.name}**({0.mention}) was invited by **{1.name}**({1.mention}) [`{2}`].'.format(member, inviter, invite_code))
+
+@bot.event
+async def on_member_remove(member):
+  await inviting.on_member_remove(member)
 
 #Generic error handling
 @bot.event

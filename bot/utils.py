@@ -95,3 +95,14 @@ async def send_failed_msg(channel: discord.abc.GuildChannel, msg: str):
 
 async def send_success_msg(channel: discord.abc.GuildChannel, msg: str):
   return await send_embed_msg(channel, msg, Colour.green())
+
+# https://developer.valvesoftware.com/wiki/SteamID
+def steamid_to_64bit(steamid):
+    steamid64 = 76561197960265728 # Base
+    id_split = steamid.split(":")
+    steamid64 += int(id_split[2]) * 2
+
+    if id_split[1] == "1":
+        steamid64 += 1
+    
+    return steamid64

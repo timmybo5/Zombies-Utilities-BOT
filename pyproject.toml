@@ -1,17 +1,16 @@
 [tool.poetry]
 name = "zombies-utilities-bot"
-version = "0.1.0"
+version = "1.0.1"
 description = "A python discord bot that offers useful utility commands"
 authors = ["zombie.extinguisher@hotmail.com"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-discord = "^1.0.1"
-replit = "^2.0.0"
+discord = "^1.7.3"
+replit = "^3.1.0"
 schedule = "^0.6.0"
-flask = "^1.1.2"
-py-dactyl = "^0.1.13"
-DiscordUtils = "^1.3.4"
+py-dactyl = "^0.1.16"
+Flask = "^2.0.1"
 
 [tool.poetry.dev-dependencies]
 
