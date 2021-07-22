@@ -1,6 +1,8 @@
 """
 Utils
 """
+
+import re
 import discord
 from discord import Colour
 
@@ -106,3 +108,6 @@ def steamid_to_64bit(steamid):
         steamid64 += 1
     
     return steamid64
+
+def is_steamid(steamid):
+  return re.search("^STEAM_[0-5]:[01]:\d+$", steamid)
