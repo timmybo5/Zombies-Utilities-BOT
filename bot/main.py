@@ -337,6 +337,23 @@ async def say(ctx, *, message):
     #Send message in channel
     await ctx.channel.send(message)
 
+#Say your message as the bot
+@bot.command()
+async def profile(ctx, steamid):
+
+  #Check if steamid has correct format
+  if not utils.is_steamid(steamid):
+    msg = "{0.mention} {1} is not a valid Steam ID!".format(ctx.message.author, steamid)
+    await utils.send_failed_msg(ctx.channel, msg)
+    return
+
+  #Steamid64 for community profile link
+  inviter_steamid64 = utils.steamid_to_64bit(steamid)
+
+  msg = "{0.mention} the profile for **{1}** is __<https://steamcommunity.com/profiles/{2}/>__".format(ctx.message.author, steamid, inviter_steamid64)
+  await utils.send_success_msg(ctx.channel, msg)
+  
+
 #Invite logger
 @bot.event
 async def on_member_join(member):
