@@ -337,13 +337,34 @@ async def say(ctx, *, message):
     #Send message in channel
     await ctx.channel.send(message)
 
-#Say your message as the bot
+#Get Steam profile link from steamid or member
 @bot.command()
-async def profile(ctx, steamid):
+async def profile(ctx, steamid: str):
 
+  if '@' in steamid:
+    member_id = int(steamid.strip('<@!>'))
+    member = ctx.guild.get_member(member_id)
+    
+    # Notify user we are searching
+    profile_embed = discord.Embed(description="{0.mention} Searching profile...".format(ctx.message.author), colour=Colour.orange())
+    profile_msg = await ctx.send(embed=profile_embed)
+
+    # Get link from Member
+    profile_link = await inviting.find_profile_for_member(member)
+
+    if profile_link:
+      profile_embed.description = "{0.mention} the profile for **{1}** is __<{2}>__".format(ctx.message.author, member.name, profile_link)
+      profile_embed.color = Colour.green()
+    else:
+      profile_embed.description = "{0.mention} the profile for **{1}** could not be retrieved!".format(ctx.message.author, member.name)
+      profile_embed.color = Colour.red()
+
+    await profile_msg.edit(embed=profile_embed)
+    return
+  
   #Check if steamid has correct format
   if not utils.is_steamid(steamid):
-    msg = "{0.mention} {1} is not a valid Steam ID!".format(ctx.message.author, steamid)
+    msg = "{0.mention} {1} is not a valid SteamID!".format(ctx.message.author, steamid.replace('@',''))
     await utils.send_failed_msg(ctx.channel, msg)
     return
 
@@ -352,7 +373,11 @@ async def profile(ctx, steamid):
 
   msg = "{0.mention} the profile for **{1}** is __<https://steamcommunity.com/profiles/{2}/>__".format(ctx.message.author, steamid, inviter_steamid64)
   await utils.send_success_msg(ctx.channel, msg)
-  
+
+@profile.error
+async def profile_error(ctx, error):
+  await utils.send_failed_msg(ctx.channel, "!profile requires a SteamID [STEAM_0:0:11101] or @user argument")
+  return
 
 #Invite logger
 @bot.event
