@@ -8,6 +8,7 @@ Ref:
 import utils
 import asyncio
 import discord
+import re
 from discord.ext import commands
 
 bot_ref = None
@@ -118,3 +119,46 @@ async def create_invite(inviter_name, inviter_steamid, guild_id, channel_id):
       bot_ref.loop.create_task(log_chan.send('Invite `{0}` created by **{1}**({2}) __<https://steamcommunity.com/profiles/{3}/>__'.format(invite.code, inviter_name, inviter_steamid, inviter_steamid64)))
 
   return invite.url
+
+
+#Find steam profile from member by searching invites
+async def find_profile_for_member(member: discord.Member):
+
+  log_chan = discord.utils.get(member.guild.channels, name="invite-logs")
+  #messages = await log_chan.history(limit=None).flatten()
+  #messages = await log_chan.history(limit=None).get(author__name='Test').flatten()
+
+  messages = await log_chan.history(limit=None).flatten()
+  invite_code_re = "\[`([a-zA-Z0-9]+)`\].$"
+  invite_code = ""
+
+  #find invite code for Member
+  for msg in messages:
+    for mention_member in msg.mentions:
+      if mention_member == member:
+        #find code in message
+        invite_code = re.search(invite_code_re, msg.content)
+        if invite_code:
+          invite_code = invite_code.group(1)
+          break
+
+  if not invite_code:
+    return False
+
+  invite_steam_re = "^Invite `([a-zA-Z0-9]+)`"
+  invite_steam_profile_re = "(https://.+/)>__$"
+  invite_steam_profile = ""
+
+  #find steam profile link from invite code
+  for msg in messages:
+    if invite_code in msg.content:
+      invite_steam_msg = re.search(invite_steam_re, msg.content)
+      if invite_steam_msg:
+        invite_steam_profile = re.search(invite_steam_profile_re, msg.content)
+        invite_steam_profile = invite_steam_profile.group(1)
+        break
+
+  if not invite_steam_profile:
+    return False
+
+  return invite_steam_profile

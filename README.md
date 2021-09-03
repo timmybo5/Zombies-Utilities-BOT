@@ -2,15 +2,16 @@
 A python discord bot that offers useful utility commands
 
 ## Commands
-- **!jail** <@player> <time [m,h,d,w]\>
+- **!jail** <@user> <time [m,h,d,w]\>
   - !jail @Zombie Extinguisher 3h
-- **!unjail** <@player\>
+- **!unjail** <@user\>
 - **!restart** <server_name\> (Reboots a pterodactyl hosted server)
   - !restart sandbox
 - **!purgeraid** <date dd/mm/yyyy\> (Kicks all members that joined on that date without role)
 - **!say** <message\> (Talks as the bot)
-- **!profile** <steamid\> (Sends a link to the steam profile)
+- **!profile** <steamid\> or <@user> (Sends a link to the steam profile)
   - !profile STEAM_0:0:30269268
+  - !profile @Zombie (Only works if user joined with the bot generated link)
 
 ## Env
 The bot requires a .env file (root dir) with the following constants
