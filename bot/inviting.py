@@ -155,8 +155,9 @@ async def find_profile_for_member(member: discord.Member):
       invite_steam_msg = re.search(invite_steam_re, msg.content)
       if invite_steam_msg:
         invite_steam_profile = re.search(invite_steam_profile_re, msg.content)
-        invite_steam_profile = invite_steam_profile.group(1)
-        break
+        if invite_steam_profile:
+          invite_steam_profile = invite_steam_profile.group(1)
+          break
 
   if not invite_steam_profile:
     return False
