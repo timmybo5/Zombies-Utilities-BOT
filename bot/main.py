@@ -382,8 +382,10 @@ async def profile_error(ctx, error):
 @bot.command
 async def getsteamid(ctx, url: str):
 
-    # Check if URL is or isn't a Steam community one
-    if 'https://steamcommunity.com/profiles/' not in url:
+    # Check if URL links to the Steam Community, is a decimal value and within the length limit
+    if ('https://steamcommunity.com/profiles/' not in url) or \
+            (not url.split('/')[-1].isdecimal()) or \
+            (not len(url.split('/')[-1]) == 17):
         msg = "{0.mention} {1} is not a valid Steam community URL!".format(ctx.message.author, url)
         await utils.send_failed_msg(ctx.channel, msg)
         return
