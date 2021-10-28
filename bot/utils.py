@@ -16,11 +16,11 @@ def is_administrator(member: discord.Member):
   return member.guild_permissions.administrator
 
 def is_booster(guild: discord.Guild, member: discord.Member):
-  
+
   #Check if a booster role exists on the server
   if guild.premium_subscriber_role == None:
     return False
-  
+
   return guild.premium_subscriber_role in member.roles
 
 def can_target(originator: discord.Member, target: discord.Member):
@@ -106,8 +106,23 @@ def steamid_to_64bit(steamid):
 
     if id_split[1] == "1":
         steamid64 += 1
-    
+
     return steamid64
+
+def url_to_steamid(url):
+    community_id = int(url.split("/")[-1])
+    base_id = 76561197960265728
+    part_id = community_id % 2 # https://developer.valvesoftware.com/wiki/SteamID#Steam_Community_ID_as_a_Steam_ID
+
+    # Place the account number behind the equals sign and bring the community ID in front to get a reverse equation.
+    # W = Z*2 + V + Y --> Z*2 = V + Y - W
+    steamid = "STEAM_0:{}:{}".format(part_id,
+        int(
+            abs((base_id + part_id - community_id) / 2)
+        )
+    )
+    
+    return steamid
 
 def is_steamid(steamid):
   return re.search("^STEAM_[0-5]:[01]:\d+$", steamid)
