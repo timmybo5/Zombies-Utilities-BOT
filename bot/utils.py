@@ -109,10 +109,11 @@ def steamid_to_64bit(steamid):
 
     return steamid64
 
+# https://developer.valvesoftware.com/wiki/SteamID#Steam_Community_ID_as_a_Steam_ID
 def url_to_steamid(url):
     community_id = int(url.split("/")[-1])
     base_id = 76561197960265728
-    part_id = community_id % 2 # https://developer.valvesoftware.com/wiki/SteamID#Steam_Community_ID_as_a_Steam_ID
+    part_id = community_id % 2
 
     # Place the account number behind the equals sign and bring the community ID in front to get a reverse equation.
     # W = Z*2 + V + Y --> Z*2 = V + Y - W
@@ -126,3 +127,6 @@ def url_to_steamid(url):
 
 def is_steamid(steamid):
   return re.search("^STEAM_[0-5]:[01]:\d+$", steamid)
+
+def is_valid_url(url):
+    return re.search("https://steamcommunity.com/profiles/\d{17}", url)
