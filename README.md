@@ -12,6 +12,8 @@ A python discord bot that offers useful utility commands
 - **!profile** <steamid\> or <@user> (Sends a link to the steam profile)
   - !profile STEAM_0:0:30269268
   - !profile @Zombie (Only works if user joined with the bot generated link)
+- **!steamid** <url> (Converts a Steam community URL to a SteamID)
+  - !steamid https://steamcommunity.com/profiles/76561198020804264
 
 ## Env
 The bot requires a .env file (root dir) with the following constants
