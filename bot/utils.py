@@ -113,20 +113,16 @@ def is_steamid(steamid):
   return re.search("^STEAM_[0-5]:[01]:\d+$", steamid)
 
 # https://developer.valvesoftware.com/wiki/SteamID#Steam_Community_ID_as_a_Steam_ID
-def url_to_steamid(url):
-  community_id = int(url.split("/")[-1])
+def communityid_to_steamid(community_id):
   base_id = 76561197960265728
   part_id = community_id % 2
 
-  # Place the account number behind the equals sign and bring the community ID in front to get a reverse equation.
+  #Place the account number behind the equals sign and bring the community ID in front to get a reverse equation.
   # W = Z*2 + V + Y --> Z*2 = V + Y - W
-  steamid = "STEAM_0:{}:{}".format(part_id,
-    int(
-      abs((base_id + part_id - community_id) / 2)
-      )
-  )
+  steamid = "STEAM_0:{}:{}".format(part_id, int(abs((base_id + part_id - community_id) / 2)))
 
   return steamid
 
-def is_valid_url(url):
-  return re.search("https://steamcommunity.com/profiles/\d{17}", url)
+def id_from_community_url(url):
+  matches = re.search("^https://steamcommunity.com/profiles/(\d{17})/?$", url)
+  return matches.group(1)

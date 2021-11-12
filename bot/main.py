@@ -379,19 +379,23 @@ async def profile_error(ctx, error):
   await utils.send_failed_msg(ctx.channel, "!profile requires a SteamID [STEAM_0:0:11101] or @user argument")
   return
 
-@bot.command
+@bot.command()
 async def steamid(ctx, url: str):
 
-    # Check if URL links to the Steam Community, is a decimal value and within the length limit
-    if not utils.is_valid_url(url):
-        msg = "{0.mention} __<{1}>__ is not a valid Steam community URL!".format(ctx.message.author, url)
-        await utils.send_failed_msg(ctx.channel, msg)
-        return
+  #Get community ID from url
+  community_id = utils.id_from_community_url(url)
 
-    steamid = utils.url_to_steamid(url)
+  #Check if community ID was found
+  if not community_id:
+      msg = "{0.mention} __<{1}>__ is not a valid Steam community URL!".format(ctx.message.author, url)
+      await utils.send_failed_msg(ctx.channel, msg)
+      return
 
-    msg = "{0.mention} the SteamID for __<{1}>__ is `{2}`".format(ctx.message.author, url, steamid)
-    await utils.send_success_msg(ctx.channel, msg)
+  steamid = utils.communityid_to_steamid(int(community_id))
+
+  msg = "{0.mention} the SteamID for __<{1}>__ is `{2}`".format(ctx.message.author, url, steamid)
+  await utils.send_success_msg(ctx.channel, msg)
+
 
 @steamid.error
 async def steamid_error(ctx, error):
