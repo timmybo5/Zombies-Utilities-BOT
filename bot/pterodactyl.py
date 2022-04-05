@@ -37,8 +37,8 @@ def restart_server(server_name: str):
     return False, "server not found!"
 
   server_id = get_server_id(server_name_full)
-  pterodactylAPI.client.send_power_action(server_id, "kill")
-  pterodactylAPI.client.send_power_action(server_id, "start")
+  pterodactylAPI.client.servers.send_power_action(server_id, "kill")
+  pterodactylAPI.client.servers.send_power_action(server_id, "start")
 
   #Prevent server restarting for the next minute
   time_next_restart = time_now + datetime.timedelta(seconds = restart_delay)
@@ -47,7 +47,7 @@ def restart_server(server_name: str):
   return True, "restarting **"+server_name_full+"**..."
 
 def get_server_id(server_name_full: str):
-  list_servers_result = pterodactylAPI.client.list_servers()
+  list_servers_result = pterodactylAPI.client.servers.list_servers()
 
   for page in list_servers_result:
       for item in page.data:

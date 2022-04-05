@@ -9,7 +9,7 @@ python = "^3.8"
 discord = "^1.7.3"
 replit = "^3.2.4"
 schedule = "^0.6.0"
-py-dactyl = "^0.1.16"
+py-dactyl = "^1.1.3"
 Flask = "^2.0.2"
 
 [tool.poetry.dev-dependencies]
