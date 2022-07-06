@@ -4,8 +4,10 @@ Ref: https://discordpy.readthedocs.io/en/v1.2.2/api.html#role
 """
 import discord
 import utils
-from replit import db
+import pickledb
 from typing import List
+
+db = pickledb.load('jail_data.db', True)
 
 async def remove_all_roles(guild: discord.Guild, member: discord.Member):
   if utils.is_booster(guild, member):
@@ -28,7 +30,7 @@ async def set_roles(guild: discord.Guild, member: discord.Member, roles: List[di
     old_role_ids.append(role.id)
 
   key = "prev_roles_"+str(member.id)
-  db[key] = old_role_ids
+  db.set(key, old_role_ids)
 
   #Remove old roles
   await remove_all_roles(guild, member)
@@ -48,8 +50,8 @@ def get_previous_roles(guild: discord.Guild, member: discord.Member):
   key = "prev_roles_"+str(member.id)
   roles = []
 
-  if key in db:
-    role_ids = db[key]
+  if db.exists(key):
+    role_ids = db.get(key)
 
     for role_id in role_ids:
 

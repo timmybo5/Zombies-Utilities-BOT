@@ -12,11 +12,13 @@ import pterodactyl
 import datetime
 import asyncio
 import discord
-import inviting
+import inviting 
+import pickledb
 from discord.ext import commands, tasks
 from discord import Colour
-from replit import db
 from webserver import keep_alive
+
+db = pickledb.load('jail_data.db', True)
 
 intents = discord.Intents.default()
 intents.members = True
@@ -42,9 +44,9 @@ async def think():
 
   time_now = datetime.datetime.now()
 
-  for key in db.keys():
+  for key in list(db.getall()):
     if key.startswith("unjailtime_"):
-      time_unjail = db[key]
+      time_unjail = db.get(key)
       if time_unjail < time_now.timestamp():
         
         key_parts = key.split('_')
@@ -58,14 +60,14 @@ async def think():
           member = await guild.fetch_member(member_id)
         except:
           #Member left the guild
-          del db[key]
+          db.rem(key)
           return
 
         #Restore roles
         await roles.restore_roles(guild, member)
 
         #Remove unjail time
-        del db[key]
+        db.rem(key)
 
         channels = await guild.fetch_channels()
 
@@ -74,7 +76,6 @@ async def think():
           if channel.name.lower() == "general":
             msg = "{0.mention} has been released from prison!".format(member)
             await utils.send_success_msg(channel, msg)
-
 
 #Jail
 @bot.command()
@@ -112,8 +113,8 @@ async def jail(ctx, target: discord.Member, time_str):
     time_now = datetime.datetime.now()
     time_unjail = time_now + datetime.timedelta(minutes = jail_length)
    
-    #Unfortunately replit db doesn't support 2d dicts (db["unjail"][str(target.id)])
-    db["unjailtime_"+str(ctx.guild.id)+"_"+str(target.id)] = time_unjail.timestamp()
+    #Store unjail time in db
+    db.set("unjailtime_"+str(ctx.guild.id)+"_"+str(target.id), time_unjail.timestamp())
 
     #Notification
     length = utils.format_time_str(time_str)
@@ -153,8 +154,8 @@ async def unjail(ctx, target: discord.Member):
     #Remove unjail time
     key = "unjailtime_"+str(ctx.guild.id)+"_"+str(target.id)
 
-    if key in db:
-      del db[key]
+    #Does not throw exception if no key
+    db.rem(key)
 
     msg = "{0.mention} unjailed {1.mention}!".format(ctx.message.author, target)
     await utils.send_success_msg(ctx.channel, msg)
