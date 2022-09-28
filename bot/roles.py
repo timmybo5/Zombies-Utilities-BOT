@@ -54,9 +54,10 @@ def get_previous_roles(guild: discord.Guild, member: discord.Member):
     role_ids = db.get(key)
 
     for role_id in role_ids:
-
+      
       # @everyone & Booster roles are not assignable (will throw an error)
-      if (role_id == guild.default_role.id or role_id == guild.premium_subscriber_role.id):
+      # Booster role only exists after first boost
+      if (role_id == guild.default_role.id or (guild.premium_subscriber_role != None and role_id == guild.premium_subscriber_role.id)):
         continue
 
       roles.append(discord.utils.get(guild.roles, id=role_id))
