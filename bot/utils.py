@@ -10,7 +10,9 @@ embed_red = discord.Embed(title="Red", colour=0xFF0000)
 
 def is_staff(ctx, member: discord.Member):
   staff_role = discord.utils.get(ctx.guild.roles, name="Staff")
-  return staff_role in member.roles
+  team_role = discord.utils.get(ctx.guild.roles, name="Team")
+
+  return staff_role in member.roles or team_role in member.roles
 
 def is_administrator(member: discord.Member):
   return member.guild_permissions.administrator
