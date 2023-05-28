@@ -29,11 +29,11 @@ async def on_ready(bot):
 async def on_member_remove(member):
     #Update cache
     invite_cache[member.guild.id] = await member.guild.invites()
-        
+
 #Delete any invite which is not single-use
 async def on_invite_create(invite):
     if invite.max_uses != 1:
-        await invite.delete("Automatic deletion, non-single use invite created")
+        await invite.delete(reason='Automatic deletion, non-single use invite created')
 
 #Should be called from within on_member_join
 async def fetch_inviter(member):
