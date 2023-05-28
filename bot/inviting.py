@@ -30,10 +30,10 @@ async def on_member_remove(member):
     #Update cache
     invite_cache[member.guild.id] = await member.guild.invites()
 
-#Delete any invite which is not single-use
+#Delete any invite which does not expire after 30 minutes
 async def on_invite_create(invite):
-    if invite.max_uses != 1:
-        await invite.delete(reason='Automatic deletion, non-single use invite created')
+    if invite.max_age > 1800:
+        await invite.delete(reason='Automatic deletion, invite expiration was set to >30 minutes.')
 
 #Should be called from within on_member_join
 async def fetch_inviter(member):
