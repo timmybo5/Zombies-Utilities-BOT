@@ -422,6 +422,10 @@ async def on_member_join(member):
 async def on_member_remove(member):
   await inviting.on_member_remove(member)
 
+@bot.event
+async def on_invite_create(invite):
+  await inviting.on_invite_create(invite)
+
 #Generic error handling
 @bot.event
 async def on_command_error(ctx, error):
